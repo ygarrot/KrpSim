@@ -17,7 +17,7 @@ except NameError:
 
 
 calc_grammar = r"""
-    ?start: (initial_resources _LI)+ (rules _LI)+ _LI optimize _LI
+    ?start: (initial_resources _LI)+ (rules _LI)+ _LI+ optimize _LI
 
     ?initial_resources: elem
     ?elem:  MWORD ":" NUMBER    -> elem
