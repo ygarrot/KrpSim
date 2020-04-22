@@ -1,0 +1,4 @@
+stock = {}
+processes = {}
+optimize = None
+

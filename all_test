@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for test in `find test resources -type f`
+do
+	echo $test
+	./source/main.py $test
+done

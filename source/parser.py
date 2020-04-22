@@ -6,8 +6,8 @@ from lark import Lark, Transformer, v_args, Tree, UnexpectedInput
 import argparse
 import traceback
 import logging
-import sys
-# from config import *
+import copy
+from config import *
 
 try:
     input = raw_input   # For Python2 compatibility
@@ -21,8 +21,8 @@ calc_grammar = r"""
     ?elem:  MWORD ":" NUMBER    -> elem
     ?liste: elem ";" | elem
 
-    ?output: "):(" liste+ "):" | "):"
-    ?input:  ":(" liste+
+    ?output: "(" liste+ "):" | ":"
+    ?input:  ":(" liste+ "):"
     ?rules:  MWORD input output NUMBER -> set_rules
 
     ?goal: MWORD| MWORD ";"
@@ -41,8 +41,6 @@ calc_grammar = r"""
     %ignore _COMMENT
 """
 
-stock = {}
-processes = {}
 class trans(Transformer):
     def initial_resources(self, args):
         if args:
@@ -63,36 +61,26 @@ class trans(Transformer):
         if (isinstance(args[1], list)):
             process.i = {key:value for (key, value) in args[1]}
         else:
-            process.i[args[1][0]] = args[1][1]
+            process.i = {args[1][0]: args[1][1]}
         if (isinstance(args[2], list)):
             process.o = {key:value for (key, value) in args[2]}
         else:
-            process.o[args[2][0]] = args[2][1]
-        processes[args[0]] =process
+            process.o = {args[2][0]: args[2][1]}
+        processes[args[0]] = process
 
+def parse(name_file):
+    calc_parser = Lark(calc_grammar, parser='lalr', debug=True, transformer=trans())
+    with open(name_file, 'r') as myfile:
+        file_content=myfile.read()
+    opt = re.search('optimize:\((.*)\)', re.sub('#.*', '', file_content), re.IGNORECASE)
+    if not opt:
+        exit()
+    optimize = opt.group(1).split(';')
 
+    file_content = re.sub('optimize:(.*)', '', file_content)
 
+    try:
+        tree = calc_parser.parse(file_content)
+    except UnexpectedInput as e:
+        print(e)
 
-calc_parser = Lark(calc_grammar, parser='lalr', debug=True, transformer=trans())
-
-
-with open(sys.argv[1], 'r') as myfile:
-    file_content=myfile.read()
-opt = re.search('optimize:\((.*)\)', re.sub('#.*', '', file_content), re.IGNORECASE)
-if not opt:
-    exit()
-toto = opt.group(1).split(';')
-print(toto)
-
-file_content = re.sub('optimize:(.*)', '', file_content)
-
-try:
-    tree = calc_parser.parse(file_content)
-except UnexpectedInput as e:
-    print(e)
-
-for i in processes:
-	print(i)
-	print(processes[i].i.items())
-	print(processes[i].o.items())
-	print(str(processes[i].t))
