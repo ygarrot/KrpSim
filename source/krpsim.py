@@ -57,15 +57,15 @@ def krpsim(s, p, o):
 	print(t)
 
 def main():
-	stock = {	"planche":7,
+	stock = {	#"planche":7,
 				"euro":8}
 	processes = {}
-	processes["do_montant"] = Process({"planche":1},{"montant":1},15)
-	processes["do_fond"] = Process({"planche":2},{"fond":1},20)
-	processes["do_etagere"] = Process({"planche":1},{"etagere":1},10)
-	processes["do_armoire_ikea"] = Process({"montant":2,
-											"fond":1,
-											"etagere":3},{"armoire":1},30)
+#	processes["do_montant"] = Process({"planche":1},{"montant":1},15)
+#	processes["do_fond"] = Process({"planche":2},{"fond":1},20)
+#	processes["do_etagere"] = Process({"planche":1},{"etagere":1},10)
+#	processes["do_armoire_ikea"] = Process({"montant":2,
+#											"fond":1,
+#											"etagere":3},{"armoire":1},30)
 	processes["achat_materiel"] = Process({"euro":8},{"materiel":1}, 10)
 	processes["realisation_produit"] = Process({"materiel":1},{"produit":1}, 30)
 	processes["livraison"] = Process({"produit":1},{"client_content":1}, 20)
