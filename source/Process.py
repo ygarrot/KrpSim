@@ -7,7 +7,7 @@ class Process:
 	b : busy or not
 	r : requested or not
 	"""
-	def __init__(self, input, output, time):
+	def __init__(self, input = {}, output={}, time = 0):
 		self.i = input
 		self.o = output
 		self.t = time
