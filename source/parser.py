@@ -59,15 +59,15 @@ class trans(Transformer):
 
     def set_rules(self, args):
         process = Process()
-        process.time = args[3]
+        process.t = args[3]
         if (isinstance(args[1], list)):
-            process.input = {key:value for (key, value) in args[1]}
+            process.i = {key:value for (key, value) in args[1]}
         else:
-            process.input[args[1][0]] = args[1][1]
+            process.i[args[1][0]] = args[1][1]
         if (isinstance(args[2], list)):
-            process.input = {key:value for (key, value) in args[2]}
+            process.o = {key:value for (key, value) in args[2]}
         else:
-            process.input[args[2][0]] = args[2][1]
+            process.o[args[2][0]] = args[2][1]
         processes[args[0]] =process
 
 
@@ -91,4 +91,8 @@ try:
 except UnexpectedInput as e:
     print(e)
 
-print(processes)
+for i in processes:
+	print(i)
+	print(processes[i].i.items())
+	print(processes[i].o.items())
+	print(str(processes[i].t))
