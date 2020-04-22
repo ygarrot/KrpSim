@@ -20,10 +20,9 @@ calc_grammar = r"""
     ?initial_resources: elem    -> initial_resources
     ?elem:  MWORD ":" NUMBER    -> elem
     ?liste: elem ";" | elem
-
     ?output: "(" liste+ "):" | ":"
-    ?input:  ":(" liste+ "):"
-    ?rules:  MWORD input output NUMBER -> set_rules
+    ?input:  "(" liste+ "):" | ":"
+    ?rules:  MWORD ":" input output NUMBER -> set_rules
 
     ?goal: MWORD| MWORD ";"
     ?optimize: "optimize:(" goal+  ")" ->set_goal
@@ -32,12 +31,11 @@ calc_grammar = r"""
     _COMMENT: /#.*\n/
     MWORD: /([a-zA-Z0-9_])/+
 
+    NUMBER: SIGNED_NUMBER
     %import common.UCASE_LETTER
-    %import common.NUMBER
+    %import common.SIGNED_NUMBER
     %import common.WORD
-    %import common.WS_INLINE
     %import common.LF
-    %ignore WS_INLINE
     %ignore _COMMENT
 """
 
