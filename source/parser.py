@@ -64,7 +64,7 @@ class trans(Transformer):
             process.o = {key:value for (key, value) in args[2]}
         else:
             process.o = {args[2][0]: args[2][1]}
-        processes[args[0]] = process
+        processes[str(args[0])] = process
 
 def parse(name_file):
     calc_parser = Lark(calc_grammar, parser='lalr', debug=True, transformer=trans())
