@@ -52,6 +52,28 @@ def check_start_process(pp, b, s, t, i, d):
         return True, True, s
     return False, d, s
 
+def check_end_process(pp, s, i):
+    """
+    pp : current process
+    s : stock
+    i : current process name(key)
+    Check if process ended
+    if so, adding it's output to the stock and setting busy to false.
+    """
+    pp.dt += 1
+    if (pp.dt == pp.t):
+        for k, v in pp.o.items():
+            print("Creating " + str(v) + " " + str(k))
+            pp.r -= v
+            if k in s:
+                s[k] += v
+            else:
+                s[k] = v
+        pp.dt = 0
+        pp.b = False
+        print("Process " + i + " ended")
+    return pp, s
+
 def krpsim(s, p, o):
     """
     s : stock
@@ -77,18 +99,7 @@ def krpsim(s, p, o):
                 p[i].b, d, s = check_start_process(p[i], b, s, t, i, d)
             elif p[i].b:
                 d = True
-                p[i].dt += 1
-                if (p[i].dt == p[i].t):
-                    for k, v in p[i].o.items():
-                        print("Creating " + str(v) + " " + str(k))
-                        p[i].r -= v
-                        if k in s:
-                            s[k] += v
-                        else:
-                            s[k] = v
-                    p[i].dt = 0
-                    p[i].b = False
-                    print("Process " + i + " ended")
+                p[i], s = check_end_process(p[i], s, i)
             b = {}
         if (d == False):
             print("no more process doable at time " + str(t))
