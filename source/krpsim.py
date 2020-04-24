@@ -1,109 +1,93 @@
 from Process import *
 
-def get_requests(p, s, mr, sr, pp):
-    r = pp.r
+def get_requests(processes, s, main_requests, sub_requests, current_process):
+    requested = current_process.requested
     for j in range(10):
-        for i in p:
-            if any (k in mr for k in p[i].o.keys()) or any (k in sr.keys() for k in p[i].o.keys()):
-                for k, v in p[i].i.items():
-                    sr[k] = v
-    if pp.r <= 0:
+        for process in processes.values():
+            if any (output in main_requests for output in process.output.keys())\
+                    or any (k in sub_requests.keys() for output in process.output.keys()):
+                for key, input in process.input.items():
+                    sub_requests[key] = input
+    if requested <= 0:
     #if all (p[k].r <= 0 for k in p):
-        for k in sr.keys():
-            if k in pp.o:
-                r += sr[k]
-        for k in mr:
-            if k in pp.o:
-                r += 1
-    return r, sr;
+        for sub_request in sub_requests.keys():
+            if sub_request in current_process.output:
+                requested += sub_requests[sub_request]
+        for request in main_requests:
+            if request in current_process.output:
+                requested += 1
+    return requested, sub_requests;
 
-def check_stock_for_process(pp, s):
+def check_stock_for_process(current_process, stock):
     """
-    pp : current process
-    s : stock
     Parcours les inputs d'un process
-    Stock dans un buffer les inputs qui sont dans le stock
+    Stock dans un buf les inputs qui sont dans le stock
     en quantite suffisante.
-    Retourne le buffer
+    Retourne le buf
     """
-    b = {}
-    for k, v in pp.i.items():
-        if k in s and s[k] >= v:
-            b[k] = True
-    return b
+    buf = {}
+    for key, value in current_process.input.items():
+        if key in stock and stock[key] >= value:
+            buf[key] = True
+    return buf
 
-def check_start_process(pp, b, s, t, i, d):
+def check_start_process(current_process, buf, stock, time, i, doable):
     """
-    pp : current process
-    b : buffer
-    s : stock
-    t : global time
-    i : current process name(key)
-    d : process doable at time t
-    Check if buffer contains all process' inputs
+    Check if buf contains all process' inputs
     if so remove from the stock the input and start the process setting it to
     busy.
     """
-    if all (k in b for k in pp.i.keys()):
-        print(str(t) + ":" + i)
-        for k, v in pp.i.items():
-            print("Removing " + str(v) + " " + str(k))
-            s[k] -= v
-        return True, True, s
-    return False, d, s
+    if all (current_input in buf for current_input in current_process.input.keys()):
+        print("{} : {}".format(time, i))
+        for key, input in current_process.input.items():
+            print("Removing {} {}".format(input, key))
+            stock[key] -= input
+        return True, True, stock
+    return False, doable, stock
 
-def check_end_process(pp, s, i):
+def check_end_process(current_process, stock, key):
     """
-    pp : current process
-    s : stock
-    i : current process name(key)
     Check if process ended
     if so, adding it's output to the stock and setting busy to false.
     """
-    pp.dt += 1
-    if (pp.dt == pp.t):
-        for k, v in pp.o.items():
-            print("Creating " + str(v) + " " + str(k))
-            pp.r -= v
-            if k in s:
-                s[k] += v
+    current_process.dt += 1
+    if (current_process.delta_time is current_process.time):
+        for key, output in current_process.output.items():
+            print("Creating {} {}".format(output, key))
+            current_process.requested -= output
+            if key in stock:
+                stock[key] += value
             else:
-                s[k] = v
-        pp.dt = 0
-        pp.b = False
-        print("Process " + i + " ended")
-    return pp, s
+                stock[key] = value
+        current_process.delta_time = 0
+        current_process.busy       = False
+        print("Process {} ended".format(key))
+    return current_process, stock
 
-def krpsim(s, p, o):
-    """
-    s : stock
-    p : processes
-    o : optimize
-    """
-    b = {}
-    t = 0
-    mr = [v for v in o if v != "time"]
-    sr = {}
-    """
-    b : buffer for input
-    t : time
-    mr : main requests
-    sr : sub requests
-    """
-    while t < 10000:
-        d = False
-        for i in p:
-            p[i].r, sr = get_requests(p, s, mr, sr, p[i])
-            if not p[i].b and p[i].r > 0:
-                b = check_stock_for_process(p[i], s)
-                p[i].b, d, s = check_start_process(p[i], b, s, t, i, d)
-            elif p[i].b:
-                d = True
-                p[i], s = check_end_process(p[i], s, i)
-            b = {}
-        if (d == False):
-            print("no more process doable at time " + str(t))
+def krpsim(stock, processes, optimize):
+    buf = {}
+    time = 0
+    main_requests = [elem for elem in optimize if elem != "time"]
+    sub_requests = {}
+
+    while time < 10000:
+        doable = False
+        for i, process in processes.items():
+            buf                             = {}
+            process.requested, sub_requests = get_requests(processes, stock, main_requests, sub_requests, process)
+
+            print(i, processes[i])
+            print(process.requested)
+            if not process.busy and process.requested > 0:
+                buf = check_stock_for_process(process, stock)
+                process.busy, doable, stock = check_start_process(process, buf, stock, time, i, doable)
+            elif process.busy:
+                doable = True
+                process, stock = check_end_process(process, stock, i)
+
+        if not doable:
+            print("no more process doable at time {}".format(time))
             break;
-        t += 1
-    print(s)
-    print(t)
+        time += 1
+    print(stock)
+    print(time)

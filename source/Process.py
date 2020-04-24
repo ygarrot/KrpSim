@@ -8,12 +8,12 @@ class Process:
     r : requested or not
     """
     def __init__(self, input = {}, output={}, time = 0):
-        self.i = input
-        self.o = output
-        self.t = time
-        self.dt = 0
-        self.b = False
-        self.r = 0
+        self.input      = input
+        self.output     = output
+        self.time       = time
+        self.delta_time = 0
+        self.busy       = False
+        self.requested  = 0
 
     def __str__(self):
         return ("time: {}\n"
@@ -23,9 +23,9 @@ class Process:
                 "input: {}\n"
                 "output: {}\n"
                 ).format(
-                  self.t,
-                  self.b,
-                  self.r,
-                  self.dt,
-                  self.i.items(),
-                  self.o.items())
+                  self.time,
+                  self.busy,
+                  self.requested,
+                  self.delta_time,
+                  self.input.items(),
+                  self.output.items())

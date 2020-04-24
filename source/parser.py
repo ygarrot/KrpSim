@@ -56,6 +56,7 @@ class trans(Transformer):
     def set_rules(self, args):
         process = Process()
         process.t = int(args[3])
+        
         if (isinstance(args[1], list)):
             process.i = {key:value for (key, value) in args[1]}
         else:
@@ -65,6 +66,7 @@ class trans(Transformer):
         else:
             process.o = {args[2][0]: args[2][1]}
         processes[str(args[0])] = process
+        # print(str(args[0]), process)
 
 def parse(name_file):
     calc_parser = Lark(calc_grammar, parser='lalr', debug=True, transformer=trans())
@@ -72,7 +74,7 @@ def parse(name_file):
         file_content=myfile.read()
     opt = re.search('optimize:\((.*)\)', re.sub('#.*', '', file_content), re.IGNORECASE)
     if not opt:
-        exit()
+        exit("nothing to optimize")
     optimize = opt.group(1).split(';')
     file_content = re.sub('optimize:(.*)', '', file_content)
 
