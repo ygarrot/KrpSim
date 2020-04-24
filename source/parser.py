@@ -55,7 +55,7 @@ class trans(Transformer):
 
     def set_rules(self, args):
         process = Process()
-        process.t = int(args[3])
+        process.time = int(args[3])
         
         if (isinstance(args[1], list)):
             process.input = {key:value for (key, value) in args[1]}

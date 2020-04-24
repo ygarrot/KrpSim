@@ -56,19 +56,19 @@ def check_end_process(current_process, stock, key):
             print("Creating {} {}".format(output, key))
             current_process.requested -= output
             if key in stock:
-                stock[key] += value
+                stock[key] += output
             else:
-                stock[key] = value
+                stock[key] = output
         current_process.delta_time = 0
         current_process.busy       = False
         print("Process {} ended".format(key))
     return current_process, stock
 
 def krpsim(stock, processes, optimize):
-    buf = {}
-    time = 0
     main_requests = [elem for elem in optimize if elem != "time"]
-    sub_requests = {}
+    buf           = {}
+    sub_requests  = {}
+    time          = 0
 
     while time < 10000:
         doable = False
@@ -81,7 +81,7 @@ def krpsim(stock, processes, optimize):
                 process.busy, doable, stock = check_start_process(process, buf, stock, time, i, doable)
             elif process.busy:
                 doable = True
-                process, stock = check_end_process(process, stock, i)
+                processes[i], stock = check_end_process(process, stock, i)
 
         if not doable:
             print("no more process doable at time {}".format(time))
