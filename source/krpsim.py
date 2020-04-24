@@ -5,7 +5,7 @@ def get_requests(processes, s, main_requests, sub_requests, current_process):
     for j in range(10):
         for process in processes.values():
             if any (output in main_requests for output in process.output.keys())\
-                    or any (k in sub_requests.keys() for output in process.output.keys()):
+                    or any (output in sub_requests.keys() for output in process.output.keys()):
                 for key, input in process.input.items():
                     sub_requests[key] = input
     if requested <= 0:
@@ -50,7 +50,7 @@ def check_end_process(current_process, stock, key):
     Check if process ended
     if so, adding it's output to the stock and setting busy to false.
     """
-    current_process.dt += 1
+    current_process.delta_time += 1
     if (current_process.delta_time is current_process.time):
         for key, output in current_process.output.items():
             print("Creating {} {}".format(output, key))
@@ -76,8 +76,6 @@ def krpsim(stock, processes, optimize):
             buf                             = {}
             process.requested, sub_requests = get_requests(processes, stock, main_requests, sub_requests, process)
 
-            print(i, processes[i])
-            print(process.requested)
             if not process.busy and process.requested > 0:
                 buf = check_stock_for_process(process, stock)
                 process.busy, doable, stock = check_start_process(process, buf, stock, time, i, doable)
