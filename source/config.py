@@ -1,4 +1,3 @@
 stock = {}
 processes = {}
 optimize = None
-

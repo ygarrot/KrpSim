@@ -55,7 +55,7 @@ class trans(Transformer):
 
     def set_rules(self, args):
         process = Process()
-        process.t = args[3]
+        process.t = int(args[3])
         if (isinstance(args[1], list)):
             process.i = {key:value for (key, value) in args[1]}
         else:
@@ -74,11 +74,10 @@ def parse(name_file):
     if not opt:
         exit()
     optimize = opt.group(1).split(';')
-
     file_content = re.sub('optimize:(.*)', '', file_content)
 
     try:
         tree = calc_parser.parse(file_content)
     except UnexpectedInput as e:
         print(e)
-
+    return (optimize)

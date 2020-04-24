@@ -19,7 +19,7 @@ class Process:
         return ("time: {}\n"
                 "busy: {}\n"
                 "requested: {}\n"
-                "progreess: {}\n"
+                "progress: {}\n"
                 "input: {}\n"
                 "output: {}\n"
                 ).format(
