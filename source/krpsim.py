@@ -1,9 +1,10 @@
 from Process import *
 from random import *
+import numpy as np
 
 def make_initial_population(processes):
     population = []
-    for i in range(10):
+    for i in range(1000):
         chromosome = {}
         for process in processes:
             chromosome[process] = random()
@@ -59,7 +60,7 @@ def run_processes(processes, stock, chromosome):
     buf = {}
     time = 0
     doable = True
-    while time < 1000:
+    while time < 3000:
         doable = False
         for process_name, process in processes.items():
             if not process.busy:
@@ -69,7 +70,7 @@ def run_processes(processes, stock, chromosome):
                 doable = True
                 process, stock = check_end_process(process, stock, process_name)
         if not doable:
-            print("no more process doable at time {}".format(time))
+            #print("no more process doable at time {}".format(time))
             break
         time += 1
     return stock, time
@@ -102,33 +103,46 @@ def get_crossover(parent1, parent2):
     return children
 
 def get_next_gen_population(population, score):
-    score_threshold = sorted(score)[len(score)//2]
-    population_buffer = population
-    score_buffer = score
-    population_buffer = [population[i] for i, v in enumerate(score) if v >= score_threshold]
-    score_buffer = [score[i] for i, v in enumerate(score) if v >= score_threshold]
-    if len(population_buffer) % 2:
-        population_buffer.pop(score_buffer.index(min(score_buffer)))
-        score_buffer.pop(score_buffer.index(min(score_buffer)))
-    print(len(score_buffer))
-    print(len(population_buffer))
-    population_length = len(population_buffer)
-    i = 0
-    while i < population_length:
-        population_buffer.append(get_crossover(population_buffer[i], population_buffer[i + 1]))
-        i += 2
+    new_population = []
+    max_indices = np.argsort(score)[-667:]
+    for i in max_indices:
+        new_population.append(population[i])
+    for i in range(333):
+        new_population.append(get_crossover(new_population[i * 2], new_population[i * 2 + 1]))
+    return new_population
+#    score_threshold = sorted(score)[len(score)//2]
+#    population_buffer = population
+#    score_buffer = score
+#    population_buffer = [population[i] for i, v in enumerate(score) if v >= score_threshold]
+#    score_buffer = [score[i] for i, v in enumerate(score) if v >= score_threshold]
+#    if len(population_buffer) % 2:
+#        population_buffer.pop(score_buffer.index(min(score_buffer)))
+#        score_buffer.pop(score_buffer.index(min(score_buffer)))
+#    print(len(score_buffer))
+#    print(len(population_buffer))
+#    population_length = len(population_buffer)
+#    i = 0
+#    while i < population_length:
+#        population_buffer.append(get_crossover(population_buffer[i], population_buffer[i + 1]))
+#        i += 2
 #    for i, chromosome in enumerate(population):
 #        if score[i] < score_threshold:
 #            population_buffer.pop(i)
 #            score_buffer.pop(i)
 #    print(sorted(score))
 #    print(score_threshold)
-    return population_buffer
+#    new_population_buffer = []
+#    if (len(score) > 50):
+#        max_indices = np.argsort(score)[-67:]
+#        for i in max_indices:
+#            new_population_buffer.append(population_buffer[i])
+#    else:
+#        new_population_buffer = population_buffer
+#    return new_population_buffer
 
 def krpsim(stock, processes, optimize):
     population = make_initial_population(processes)
-    print(population)
-    for generation in range(100):
+    for generation in range(1000):
         score = []
         for i, chromosome in enumerate(population):
             #print(i)
@@ -136,3 +150,4 @@ def krpsim(stock, processes, optimize):
             score.append(get_score(stock_buffer, time_buffer, optimize))
         population = get_next_gen_population(population, score)
         print(sorted(score))
+        print(np.mean(score))
