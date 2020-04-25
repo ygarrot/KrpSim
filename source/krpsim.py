@@ -4,7 +4,7 @@ import numpy as np
 
 def make_initial_population(processes):
     population = []
-    for i in range(1000):
+    for i in range(100):
         chromosome = {}
         for process in processes:
             chromosome[process] = random()
@@ -31,14 +31,17 @@ def check_start_process(current_process, buf, stock, time, process_name, doable,
     busy.
     """
     if all (current_input in buf for current_input in current_process.input.keys()):
+#        chromosome[process_name] = chromosome[process_name] - 0.001 if chromosome[process_name] - 0.001 > 0.1 else 0.1
         doable = True
-        if random() > chromosome[process_name]:
+        if random() < chromosome[process_name]:
             #print("{} : {}".format(time, process_name))
             for key, input in current_process.input.items():
                 #print("Removing {} {}".format(input, key))
                 stock[key] -= input
-            return True, True, stock
-    return False, doable, stock
+            return True, True, stock, chromosome
+#    else:
+#        chromosome[process_name] = chromosome[process_name] + 0.001 if chromosome[process_name] + 0.001 < 0.9 else 0.9
+    return False, doable, stock, chromosome
 
 def check_end_process(process, stock, process_name):
     """
@@ -65,7 +68,7 @@ def run_processes(processes, stock, chromosome):
         for process_name, process in processes.items():
             if not process.busy:
                 buf = check_stock_for_process(process, stock)
-                process.busy, doable, stock = check_start_process(process, buf, stock, time, process_name, doable, chromosome)
+                process.busy, doable, stock, chromosome = check_start_process(process, buf, stock, time, process_name, doable, chromosome)
             else:
                 doable = True
                 process, stock = check_end_process(process, stock, process_name)
@@ -86,59 +89,23 @@ def get_score(stock, time, optimize):
 
 def get_crossover(parent1, parent2):
     crossover_point = int(random() * len(parent1))
-    #print("lol")
-    #print(list(parent1.values()))
-    #print(list(parent1.values())[:crossover_point])
-    #print(list(parent2.values()))
-    #print(list(parent2.values())[crossover_point:])
-    children_list = list(parent1.values())[:crossover_point]#.extend(list(parent2.values())[crossover_point:])
+    children_list = list(parent1.values())[:crossover_point]
     children_list.extend(list(parent2.values())[crossover_point:])
-    #print(children_list)
     children = {}
     i = 0
     for k in parent1:
         children[k] = children_list[i]
         i += 1
-    #print(children)
     return children
 
 def get_next_gen_population(population, score):
     new_population = []
-    max_indices = np.argsort(score)[-667:]
+    max_indices = np.argsort(score)[-67:]
     for i in max_indices:
         new_population.append(population[i])
-    for i in range(333):
+    for i in range(33):
         new_population.append(get_crossover(new_population[i * 2], new_population[i * 2 + 1]))
     return new_population
-#    score_threshold = sorted(score)[len(score)//2]
-#    population_buffer = population
-#    score_buffer = score
-#    population_buffer = [population[i] for i, v in enumerate(score) if v >= score_threshold]
-#    score_buffer = [score[i] for i, v in enumerate(score) if v >= score_threshold]
-#    if len(population_buffer) % 2:
-#        population_buffer.pop(score_buffer.index(min(score_buffer)))
-#        score_buffer.pop(score_buffer.index(min(score_buffer)))
-#    print(len(score_buffer))
-#    print(len(population_buffer))
-#    population_length = len(population_buffer)
-#    i = 0
-#    while i < population_length:
-#        population_buffer.append(get_crossover(population_buffer[i], population_buffer[i + 1]))
-#        i += 2
-#    for i, chromosome in enumerate(population):
-#        if score[i] < score_threshold:
-#            population_buffer.pop(i)
-#            score_buffer.pop(i)
-#    print(sorted(score))
-#    print(score_threshold)
-#    new_population_buffer = []
-#    if (len(score) > 50):
-#        max_indices = np.argsort(score)[-67:]
-#        for i in max_indices:
-#            new_population_buffer.append(population_buffer[i])
-#    else:
-#        new_population_buffer = population_buffer
-#    return new_population_buffer
 
 def krpsim(stock, processes, optimize):
     population = make_initial_population(processes)
@@ -148,6 +115,14 @@ def krpsim(stock, processes, optimize):
             #print(i)
             stock_buffer, time_buffer = run_processes(processes, stock.copy(), chromosome)
             score.append(get_score(stock_buffer, time_buffer, optimize))
+            if len(score) - 1 == score.index(max(score)):
+                fittest_stock = stock_buffer
         population = get_next_gen_population(population, score)
+        print("Fittest population")
+        print(population[score.index(max(score))])
+        print("Fittest stock")
+        print(fittest_stock)
+        print("Sorted scores")
         print(sorted(score))
+        print("Mean score")
         print(np.mean(score))
