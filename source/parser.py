@@ -65,6 +65,7 @@ class trans(Transformer):
             process.output = {key:value for (key, value) in args[2]}
         else:
             process.output = {args[2][0]: args[2][1]}
+        config.possible_stock.append(str(args[2][0]))
         process.name = str(args[0])
         processes[str(args[0])] = process
         # print(str(args[0]), process)

@@ -39,12 +39,12 @@ def check_start_process(process, buf, stock, chromosome):
 #        chromosome[process.name] = chromosome[process.name] + 0.001 if chromosome[process.name] + 0.001 < 0.9 else 0.9
     return process, stock, chromosome
 
-def update_process(process, stock):
+def update_process(process, stock, time=1):
     """
     Check if process ended
     if so, adding it's output to the stock and setting busy to false.
     """
-    process.update()
+    process.update(time)
     if (process.done()):
         stock.new(process)
         process.end()
@@ -61,7 +61,6 @@ def run_processes(processes, stock, chromosome):
                 process, stock, chromosome = check_start_process(process, buf, stock, chromosome)
             else:
                 process, stock = update_process(process, stock)
-        # print("checking:")
         doable = False
         for process in processes.values():
             if (process.busy or process.doable):
@@ -101,6 +100,7 @@ def get_next_gen_population(population, score):
     for i in range(33):
         new_population.append(get_crossover(new_population[i * 2], new_population[i * 2 + 1]))
     return new_population
+
 import copy
 def krpsim(stock, processes, optimize):
     population = make_initial_population(processes)

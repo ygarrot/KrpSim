@@ -37,12 +37,12 @@ class Process:
         # print("{}: {}".format(config.time, self.name))
         self.busy   = True
 
-    def update(self):
-        self.delta_time += 1
+    def update(self, time):
+        self.delta_time += time
 
     def done(self):
-        return self.delta_time == self.time
- 
+        return self.delta_time >= self.time
+
     def end(self):
         # print("Process {} ended".format(self.name))
         self.delta_time = 0
