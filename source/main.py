@@ -6,10 +6,6 @@ from krpsim import *
 
 def main():
     optimize = parse(sys.argv[1])
-    # for i, j in processes.items():
-    #     print(processes[i], i)
-    #     for j in processes[i].input:
-    #         print(j)
     krpsim(stock, processes, optimize)
 
 

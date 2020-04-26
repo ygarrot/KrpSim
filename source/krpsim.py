@@ -1,5 +1,6 @@
 from Process import *
 from random import *
+import config
 import numpy as np
 
 def make_initial_population(processes):
@@ -24,56 +25,47 @@ def check_stock_for_process(current_process, stock):
             buf[key] = True
     return buf
 
-def check_start_process(current_process, buf, stock, time, process_name, doable, chromosome):
+def check_start_process(process, buf, stock, chromosome):
     """
     Check if buf contains all process' inputs
     if so remove from the stock the input and start the process setting it to
     busy.
     """
-    if all (current_input in buf for current_input in current_process.input.keys()):
-#        chromosome[process_name] = chromosome[process_name] - 0.001 if chromosome[process_name] - 0.001 > 0.1 else 0.1
-        doable = True
-        if random() < chromosome[process_name]:
-            #print("{} : {}".format(time, process_name))
-            for key, input in current_process.input.items():
-                #print("Removing {} {}".format(input, key))
-                stock[key] -= input
-            return True, True, stock, chromosome
+    if process.is_doable(buf):
+#        chromosome[process.name] = chromosome[process.name] - 0.001 if chromosome[process.name] - 0.001 > 0.1 else 0.1
+        if random() < chromosome[process.name]:
+            process.start()
+            stock.remove(process)
 #    else:
-#        chromosome[process_name] = chromosome[process_name] + 0.001 if chromosome[process_name] + 0.001 < 0.9 else 0.9
-    return False, doable, stock, chromosome
+#        chromosome[process.name] = chromosome[process.name] + 0.001 if chromosome[process.name] + 0.001 < 0.9 else 0.9
+    return process, stock, chromosome
 
-def check_end_process(process, stock, process_name):
+def update_process(process, stock):
     """
     Check if process ended
     if so, adding it's output to the stock and setting busy to false.
     """
-    process.delta_time += 1
-    if (process.delta_time is process.time):
-        for key, output in process.output.items():
-            #print("Creating {} {}".format(output, key))
-            process.requested -= output
-            stock[key] = stock[key] + output if key in stock else output
-        process.delta_time = 0
-        process.busy       = False
-        #print("Process {} ended".format(process_name))
+    process.update()
+    if (process.done()):
+        stock.new(process)
+        process.end()
     return process, stock
 
 def run_processes(processes, stock, chromosome):
     buf = {}
     time = 0
-    doable = True
+    doable = False
     while time < 3000:
-        doable = False
-        for process_name, process in processes.items():
+        for process in processes.values():
             if not process.busy:
                 buf = check_stock_for_process(process, stock)
-                process.busy, doable, stock, chromosome = check_start_process(process, buf, stock, time, process_name, doable, chromosome)
+                process, stock, chromosome = check_start_process(process, buf, stock, chromosome)
+                doable = doable or process.doable
             else:
+                process, stock = update_process(process, stock)
                 doable = True
-                process, stock = check_end_process(process, stock, process_name)
         if not doable:
-            #print("no more process doable at time {}".format(time))
+            # print("no more process doable at time {}".format(time))
             break
         time += 1
     return stock, time
@@ -85,6 +77,7 @@ def get_score(stock, time, optimize):
     for k in stock:
         if k in optimize:
             score += stock[k]
+#     score += sum([stock[process] for process in stock if process in optimize])
     return score
 
 def get_crossover(parent1, parent2):
@@ -112,8 +105,7 @@ def krpsim(stock, processes, optimize):
     for generation in range(1000):
         score = []
         for i, chromosome in enumerate(population):
-            #print(i)
-            stock_buffer, time_buffer = run_processes(processes, stock.copy(), chromosome)
+            stock_buffer, time_buffer = run_processes(processes, stock, chromosome)
             score.append(get_score(stock_buffer, time_buffer, optimize))
             if len(score) - 1 == score.index(max(score)):
                 fittest_stock = stock_buffer
