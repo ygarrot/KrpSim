@@ -1,6 +1,5 @@
 from Process import *
 from random import *
-import config
 import numpy as np
 
 def make_initial_population(processes):
@@ -60,9 +59,12 @@ def run_processes(processes, stock, chromosome):
             if not process.busy:
                 buf = check_stock_for_process(process, stock)
                 process, stock, chromosome = check_start_process(process, buf, stock, chromosome)
-                doable = doable or process.doable
             else:
                 process, stock = update_process(process, stock)
+        # print("checking:")
+        doable = False
+        for process in processes.values():
+            if (process.busy or process.doable):
                 doable = True
         if not doable:
             # print("no more process doable at time {}".format(time))
@@ -99,13 +101,13 @@ def get_next_gen_population(population, score):
     for i in range(33):
         new_population.append(get_crossover(new_population[i * 2], new_population[i * 2 + 1]))
     return new_population
-
+import copy
 def krpsim(stock, processes, optimize):
     population = make_initial_population(processes)
     for generation in range(1000):
         score = []
         for i, chromosome in enumerate(population):
-            stock_buffer, time_buffer = run_processes(processes, stock, chromosome)
+            stock_buffer, time_buffer = run_processes(processes, copy.deepcopy(stock), chromosome)
             score.append(get_score(stock_buffer, time_buffer, optimize))
             if len(score) - 1 == score.index(max(score)):
                 fittest_stock = stock_buffer
