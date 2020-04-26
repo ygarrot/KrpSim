@@ -65,7 +65,10 @@ class trans(Transformer):
             process.output = {key:value for (key, value) in args[2]}
         else:
             process.output = {args[2][0]: args[2][1]}
-        config.possible_stock.append(str(args[2][0]))
+        if str(args[2][0]) not in config.possible_stock:
+            config.possible_stock.append(str(args[2][0]))
+        if str(args[1][0]) not in config.possible_stock:
+            config.possible_stock.append(str(args[1][0]))
         process.name = str(args[0])
         processes[str(args[0])] = process
         # print(str(args[0]), process)
@@ -77,7 +80,8 @@ def parse(name_file):
     opt = re.search('optimize:\((.*)\)', re.sub('#.*', '', file_content), re.IGNORECASE)
     if not opt:
         exit("nothing to optimize")
-    optimize = opt.group(1).split(';')
+    config.optimize = opt.group(1).split(';')
+    config.opt_len = len(config.optimize) - 1 if 'time' in config.optimize else 0
     file_content = re.sub('optimize:(.*)', '', file_content)
 
     try:

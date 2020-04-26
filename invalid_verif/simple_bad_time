@@ -1,0 +1,13 @@
+Nice file !  3 processes, 4 stocks, 1 to optimize
+#Evaluating .................. done.
+#Main walk
+0:achat_materiel
+10:realisation_produit
+40:livraison
+no more process doable at time 55
+
+Stock :
+client_content => 1
+produit => 0
+materiel => 0
+euro => 2

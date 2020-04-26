@@ -1,10 +1,10 @@
 #!/bin/bash
 
-for test in `find test resources -type f`
+for test in `find invalid_verif/ -type f`
 do
 	python -c 'print("="*55)'
-	echo $test
-	./source/main.py $test
+	echo -e "File : $test"
+	./source/krpsim_verif.py resources/simple $test
 	if [ "$?" -eq 0 ] ; then
 		echo -e "\e[32m Valid"
 	else
