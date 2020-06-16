@@ -95,6 +95,7 @@ def get_crossover(parent1, parent2):
 def get_next_gen_population(population, score):
     new_population = []
     max_indices = np.argsort(score)[-67:]
+    print("max_indices:", max_indices)
     for i in max_indices:
         new_population.append(population[i])
     for i in range(33):

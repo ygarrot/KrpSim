@@ -4,4 +4,4 @@ test:
 	./all_test
 
 run:
-	./source/main.py test/recre
+	./source/main.py resources/recre

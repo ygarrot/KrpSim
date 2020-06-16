@@ -56,16 +56,19 @@ class trans(Transformer):
     def set_rules(self, args):
         process = Process()
         process.time = int(args[3])
-        
+
         if (isinstance(args[1], list)):
             process.input = {key:value for (key, value) in args[1]}
         else:
             process.input = {args[1][0]: args[1][1]}
-        if (isinstance(args[2], list)):
-            process.output = {key:value for (key, value) in args[2]}
-        else:
-            process.output = {args[2][0]: args[2][1]}
-        if str(args[2][0]) not in config.possible_stock:
+
+        if args[2]:
+            if (isinstance(args[2], list)):
+                process.output = {key:value for (key, value) in args[2]}
+            else:
+                process.output = {args[2][0]: args[2][1]}
+
+        if args[2] and str(args[2][0]) not in config.possible_stock:
             config.possible_stock.append(str(args[2][0]))
         if str(args[1][0]) not in config.possible_stock:
             config.possible_stock.append(str(args[1][0]))
