@@ -83,7 +83,7 @@ def get_score(stock, time, optimize):
 
 def get_crossover(parent1, parent2):
     crossover_point = int(random() * len(parent1))
-    children_list = list(parent1.values())[:crossover_point]
+    children_list   = list(parent1.values())[:crossover_point]
     children_list.extend(list(parent2.values())[crossover_point:])
     children = {}
     i = 0
@@ -94,8 +94,8 @@ def get_crossover(parent1, parent2):
 
 def get_next_gen_population(population, score):
     new_population = []
-    max_indices = np.argsort(score)[-67:]
-    print("max_indices:", max_indices)
+    max_indices    = np.argsort(score)[-67:]
+
     for i in max_indices:
         new_population.append(population[i])
     for i in range(33):

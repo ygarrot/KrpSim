@@ -84,11 +84,11 @@ def parse(name_file):
     if not opt:
         exit("nothing to optimize")
     config.optimize = opt.group(1).split(';')
-    config.opt_len = len(config.optimize) - 1 if 'time' in config.optimize else 0
+    config.opt_len = len(config.optimize) - 1 if 'time' in config.optimize else len(config.optimize)
     file_content = re.sub('optimize:(.*)', '', file_content)
 
     try:
         tree = calc_parser.parse(file_content)
     except UnexpectedInput as e:
         print(e)
-    return (optimize)
+    return (config.optimize)
