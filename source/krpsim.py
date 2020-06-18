@@ -73,31 +73,32 @@ def run_processes(processes, stock, chromosome):
 
 def get_score(stock, time, optimize):
     score = 0
+
     if "time" in optimize:
         score -= time
     for k in stock:
         if k in optimize:
             score += stock[k]
-#     score += sum([stock[process] for process in stock if process in optimize])
+#   print(sum([stock[process] for process in stock if process in optimize]))
     return score
 
 def get_crossover(parent1, parent2):
     crossover_point = int(random() * len(parent1))
     children_list   = list(parent1.values())[:crossover_point]
     children_list.extend(list(parent2.values())[crossover_point:])
-    children = {}
-    i = 0
-    for k in parent1:
-        children[k] = children_list[i]
-        i += 1
-    return children
+    
+
+    return { k:children_list[i] for i, k in enumerate(parent1) }
+
+MAX_INDICES=-67
 
 def get_next_gen_population(population, score):
-    new_population = []
-    max_indices    = np.argsort(score)[-67:]
+    # max_indices    = np.sort(score)[::-1]
+    # max_indices = max_indices[MAX_INDICES:]
+    # print(max_indices)
+    max_indices    = np.argsort(score)[MAX_INDICES:]
+    new_population = [ population[i] for i in max_indices ]
 
-    for i in max_indices:
-        new_population.append(population[i])
     for i in range(33):
         new_population.append(get_crossover(new_population[i * 2], new_population[i * 2 + 1]))
     return new_population
